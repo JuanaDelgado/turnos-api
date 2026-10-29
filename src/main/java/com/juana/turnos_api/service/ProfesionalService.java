@@ -16,15 +16,37 @@ public class ProfesionalService {
             new Profesional(3L, "Verónica Martínez", "Traumatóloga")
     ));
 
+    private Long proximoId = 4L;
+
     public List<Profesional> listar() {
         return profesionales;
     }
 
-    public Profesional buscarPorId(Long id) {
+    public Optional<Profesional> buscarPorId(Long id) {
         return profesionales.stream()
                 .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
+    }
+
+    public Profesional crear(Profesional profesional) {
+        profesional.setId(proximoId);
+        proximoId++;
+        profesionales.add(profesional);
+        return profesional;
+    }
+
+    public Optional<Profesional> actualizar(Long id, Profesional datosNuevos) {
+        Optional<Profesional> encontrado = buscarPorId(id);
+        if(encontrado.isPresent()) {
+            Profesional profesional = encontrado.get();
+            profesional.setNombre(datosNuevos.getNombre());
+            profesional.setEspecialidad(datosNuevos.getEspecialidad());
+        }
+        return encontrado;
+    }
+
+    public boolean eliminar(Long id) {
+        return profesionales.removeIf(p -> p.getId().equals(id));
     }
 
 }

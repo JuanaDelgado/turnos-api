@@ -6,6 +6,9 @@ public class Profesional {
     private String nombre;
     private String especialidad;
 
+    public Profesional() {
+    }
+
     public Profesional(Long id, String nombre, String especialidad) {
         setId(id);
         setNombre(nombre);
@@ -28,9 +31,7 @@ public class Profesional {
         this.nombre = nombre;
     }
 
-    public String getEspecialidad() {
-        return especialidad;
-    }
+    public String getEspecialidad() { return especialidad; }
 
     public void setEspecialidad(String especialidad) {
         this.especialidad = especialidad;

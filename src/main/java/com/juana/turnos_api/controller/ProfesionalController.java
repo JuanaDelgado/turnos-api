@@ -2,6 +2,7 @@ package com.juana.turnos_api.controller;
 
 import com.juana.turnos_api.model.Profesional;
 import com.juana.turnos_api.service.ProfesionalService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +12,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/profesionales")
+@RequiredArgsConstructor
 public class ProfesionalController {
 
     private final ProfesionalService profesionalService;
-
-    public ProfesionalController(ProfesionalService profesionalService) {
-        this.profesionalService = profesionalService;
-    }
 
     @GetMapping
     public List<Profesional> listar() {

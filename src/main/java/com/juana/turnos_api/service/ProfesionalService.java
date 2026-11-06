@@ -31,6 +31,7 @@ public class ProfesionalService {
         if(encontrado.isPresent()) {
             Profesional profesional = encontrado.get();
             profesional.setNombre(datosNuevos.getNombre());
+            profesional.setEspecialidad(datosNuevos.getEspecialidad());
             profesionalRepository.save(profesional);
         }
         return encontrado;

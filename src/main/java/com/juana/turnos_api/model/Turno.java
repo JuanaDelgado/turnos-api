@@ -26,8 +26,8 @@ public class Turno {
     @JoinColumn(name = "profesional_id")
     private Profesional profesional;
 
-    @Column(name = "fecha:hora")
-    private LocalDateTime fecha_hora;
+    @Column(name = "fecha_hora")
+    private LocalDateTime fechaHora;
 
     @Enumerated(EnumType.STRING)
     private EstadoTurno estado;

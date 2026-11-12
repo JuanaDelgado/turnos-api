@@ -1,12 +1,14 @@
 package com.juana.turnos_api.service;
 
 import com.juana.turnos_api.model.Cliente;
+import com.juana.turnos_api.model.EstadoTurno;
 import com.juana.turnos_api.model.Profesional;
 import com.juana.turnos_api.model.Turno;
 import com.juana.turnos_api.repository.TurnoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +20,21 @@ public class TurnoService {
     private final ClienteService clienteService;
     private final ProfesionalService profesionalService;
 
-    public List<Turno> listar() {
+    public List<Turno> listar(Long profesionalId, EstadoTurno estado) {
+        if (profesionalId != null && estado != null) {
+            return turnoRepository.findByProfesionalIdAndEstado(profesionalId, estado);
+        }
+        if (profesionalId != null) {
+            return turnoRepository.findByProfesionalId(profesionalId);
+        }
+        if (estado != null) {
+            return turnoRepository.findByEstado(estado);
+        }
         return turnoRepository.findAll();
+    }
+
+    public List<Turno> buscarAgenda(Long profesionalId, LocalDateTime desde, LocalDateTime hasta) {
+        return turnoRepository.buscarAgendaDeProfesional(profesionalId, desde, hasta);
     }
 
     public Optional<Turno> buscarPorId(Long id) {
@@ -34,6 +49,11 @@ public class TurnoService {
             return Optional.empty();
         }
 
+        boolean ocupado = turnoRepository.existsByProfesionalIdAndFechaHora(
+                profesional.get().getId(), turno.getFechaHora());
+        if (ocupado) {
+            return Optional.empty();
+        }
         turno.setCliente(cliente.get());
         turno.setProfesional(profesional.get());
         return Optional.of(turnoRepository.save(turno));
@@ -43,7 +63,7 @@ public class TurnoService {
         Optional<Turno> encontrado = buscarPorId(id);
         if (encontrado.isPresent()) {
            Turno turno = encontrado.get();
-            turno.setFecha_hora(datosNuevos.getFecha_hora());
+            turno.setFechaHora(datosNuevos.getFechaHora());
             turno.setEstado(datosNuevos.getEstado());
            turnoRepository.save(turno);
         }

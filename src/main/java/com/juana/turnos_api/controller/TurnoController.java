@@ -1,12 +1,15 @@
 package com.juana.turnos_api.controller;
 
+import com.juana.turnos_api.model.EstadoTurno;
 import com.juana.turnos_api.model.Turno;
 import com.juana.turnos_api.service.TurnoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +21,16 @@ public class TurnoController {
     private final TurnoService turnoService;
 
     @GetMapping
-    public List<Turno> listar() {
-        return turnoService.listar();
+    public List<Turno> listar(@RequestParam(required = false) Long profesionalId,
+                              @RequestParam(required = false)EstadoTurno estado) {
+        return turnoService.listar(profesionalId, estado);
+    }
+
+    @GetMapping("/agenda")
+    public List<Turno> agenda(@RequestParam Long profesionalId,
+                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime desde,
+                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta) {
+        return turnoService.buscarAgenda(profesionalId, desde, hasta);
     }
 
     @GetMapping("/{id}")

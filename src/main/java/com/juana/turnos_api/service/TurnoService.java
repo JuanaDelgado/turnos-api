@@ -6,6 +6,8 @@ import com.juana.turnos_api.model.Profesional;
 import com.juana.turnos_api.model.Turno;
 import com.juana.turnos_api.repository.TurnoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,6 +33,10 @@ public class TurnoService {
             return turnoRepository.findByEstado(estado);
         }
         return turnoRepository.findAll();
+    }
+
+    public Page<Turno> listarPaginado(Pageable pageable){
+        return turnoRepository.findAll(pageable);
     }
 
     public List<Turno> buscarAgenda(Long profesionalId, LocalDateTime desde, LocalDateTime hasta) {

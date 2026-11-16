@@ -4,6 +4,9 @@ import com.juana.turnos_api.model.EstadoTurno;
 import com.juana.turnos_api.model.Turno;
 import com.juana.turnos_api.service.TurnoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,11 @@ public class TurnoController {
     public List<Turno> listar(@RequestParam(required = false) Long profesionalId,
                               @RequestParam(required = false)EstadoTurno estado) {
         return turnoService.listar(profesionalId, estado);
+    }
+
+    @GetMapping("/paginado")
+    public PagedModel<Turno> listarPaginado(@PageableDefault(size = 5, sort = "fechaHora")Pageable pageable) {
+        return new PagedModel<>(turnoService.listarPaginado(pageable));
     }
 
     @GetMapping("/agenda")

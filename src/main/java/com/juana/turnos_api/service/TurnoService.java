@@ -1,5 +1,10 @@
 package com.juana.turnos_api.service;
 
+import com.juana.turnos_api.dto.TurnoRequest;
+import com.juana.turnos_api.dto.TurnoResponse;
+import com.juana.turnos_api.exception.HorarioOcupadoException;
+import com.juana.turnos_api.exception.RecursoNoEncontradoException;
+import com.juana.turnos_api.mapper.TurnoMapper;
 import com.juana.turnos_api.model.Cliente;
 import com.juana.turnos_api.model.EstadoTurno;
 import com.juana.turnos_api.model.Profesional;
@@ -12,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,67 +25,54 @@ public class TurnoService {
     private final TurnoRepository turnoRepository;
     private final ClienteService clienteService;
     private final ProfesionalService profesionalService;
+    private final TurnoMapper turnoMapper;
 
-    public List<Turno> listar(Long profesionalId, EstadoTurno estado) {
+    public List<TurnoResponse> listar(Long profesionalId, EstadoTurno estado) {
+        List<Turno> turnos;
         if (profesionalId != null && estado != null) {
-            return turnoRepository.findByProfesionalIdAndEstado(profesionalId, estado);
+            turnos = turnoRepository.findByProfesionalIdAndEstado(profesionalId, estado);
+        } else if (profesionalId != null) {
+            turnos = turnoRepository.findByProfesionalId(profesionalId);
+        } else if (estado != null) {
+            turnos = turnoRepository.findByEstado(estado);
+        } else {
+            turnos = turnoRepository.findAll();
         }
-        if (profesionalId != null) {
-            return turnoRepository.findByProfesionalId(profesionalId);
-        }
-        if (estado != null) {
-            return turnoRepository.findByEstado(estado);
-        }
-        return turnoRepository.findAll();
+        return turnos.stream().map(turnoMapper::toResponse).toList();
     }
 
-    public Page<Turno> listarPaginado(Pageable pageable){
-        return turnoRepository.findAll(pageable);
+    public Page<TurnoResponse> listarPaginado(Pageable pageable) {
+        return turnoRepository.findAll(pageable).map(turnoMapper::toResponse);
     }
 
-    public List<Turno> buscarAgenda(Long profesionalId, LocalDateTime desde, LocalDateTime hasta) {
-        return turnoRepository.buscarAgendaDeProfesional(profesionalId, desde, hasta);
+    public List<TurnoResponse> buscarAgenda(Long profesionalId, LocalDateTime desde, LocalDateTime hasta) {
+        return turnoRepository.buscarAgendaDeProfesional(profesionalId, desde, hasta)
+                .stream().map(turnoMapper::toResponse).toList();
     }
 
-    public Optional<Turno> buscarPorId(Long id) {
-        return turnoRepository.findById(id);
+    public TurnoResponse buscarPorId(Long id) {
+        return turnoMapper.toResponse(obtenerTurno(id));
     }
 
-    public Optional<Turno> crear (Turno turno) {
-        Optional<Cliente> cliente = clienteService.buscarPorId(turno.getCliente().getId());
-        Optional<Profesional> profesional = profesionalService.buscarPorId(turno.getProfesional().getId());
-
-        if (cliente.isEmpty() || profesional.isEmpty()) {
-            return Optional.empty();
-        }
+    public TurnoResponse crear (TurnoRequest request) {
+        Cliente cliente = clienteService.buscarPorId(request.clienteId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el cliente con id " + request.clienteId()));
+        Profesional profesional = profesionalService.buscarPorId(request.profesionalId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el profeisonal con id " + request.profesionalId()));
 
         boolean ocupado = turnoRepository.existsByProfesionalIdAndFechaHora(
-                profesional.get().getId(), turno.getFechaHora());
+                profesional.getId(), request.fechaHora());
         if (ocupado) {
-            return Optional.empty();
+            throw new HorarioOcupadoException(profesional.getNombre(), request.fechaHora());
         }
-        turno.setCliente(cliente.get());
-        turno.setProfesional(profesional.get());
-        return Optional.of(turnoRepository.save(turno));
+
+        Turno turno = new Turno(null, cliente, profesional, request.fechaHora(), EstadoTurno.PENDIENTE);
+        return turnoMapper.toResponse(turnoRepository.save(turno));
     }
 
-    public Optional<Turno> actualizar (Long id, Turno datosNuevos) {
-        Optional<Turno> encontrado = buscarPorId(id);
-        if (encontrado.isPresent()) {
-           Turno turno = encontrado.get();
-            turno.setFechaHora(datosNuevos.getFechaHora());
-            turno.setEstado(datosNuevos.getEstado());
-           turnoRepository.save(turno);
-        }
-        return encontrado;
-    }
-
-    public boolean eliminar(Long id) {
-        if (turnoRepository.existsById(id)) {
-            turnoRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    private Turno obtenerTurno(Long id) {
+        return turnoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el turno con id " + id));
     }
 
 }

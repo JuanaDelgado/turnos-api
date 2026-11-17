@@ -17,7 +17,7 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
 
     List<Turno> findByProfesionalIdAndEstado(Long profesionalId, EstadoTurno estado);
 
-    boolean existsByProfesionalIdAndFechaHora(Long profesionalId, LocalDateTime fechaHora);
+    boolean existsByProfesionalIdAndFechaHoraAndEstadoNot(Long profesionalId, LocalDateTime fechaHora, EstadoTurno estado);
 
     @Query("SELECT t FROM Turno t " +
     "WHERE t.profesional.id = :profesionalId " +

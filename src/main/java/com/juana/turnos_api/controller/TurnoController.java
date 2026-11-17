@@ -51,4 +51,14 @@ public class TurnoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(turnoService.crear(request));
     }
 
+    @PatchMapping("/{id}/cancelar")
+    public TurnoResponse cancelar(@PathVariable Long id) {
+        return turnoService.cancelar(id);
+    }
+
+    @PatchMapping("/{id}/confirmar")
+    public TurnoResponse confirmar(@PathVariable Long id) {
+        return turnoService.confirmar(id);
+    }
+
 }

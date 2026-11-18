@@ -2,6 +2,7 @@ package com.juana.turnos_api.controller;
 
 import com.juana.turnos_api.model.Profesional;
 import com.juana.turnos_api.service.ProfesionalService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,13 +33,13 @@ public class ProfesionalController {
     }
 
     @PostMapping
-    public ResponseEntity<Profesional> crear(@RequestBody Profesional profesional) {
+    public ResponseEntity<Profesional> crear(@Valid @RequestBody Profesional profesional) {
         Profesional creado = profesionalService.crear(profesional);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Profesional> actualizar (@PathVariable Long id, @RequestBody Profesional datosNuevos) {
+    public ResponseEntity<Profesional> actualizar (@PathVariable Long id, @Valid @RequestBody Profesional datosNuevos) {
         Optional<Profesional> actualizado = profesionalService.actualizar(id, datosNuevos);
         if (actualizado.isPresent()) {
             return ResponseEntity.ok(actualizado.get());

@@ -3,6 +3,7 @@ package com.juana.turnos_api.controller;
 import com.juana.turnos_api.model.Cliente;
 import com.juana.turnos_api.service.ClienteService;
 import com.juana.turnos_api.service.ProfesionalService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +35,13 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<Cliente> crear(@RequestBody Cliente cliente) {
+    public ResponseEntity<Cliente> crear(@Valid @RequestBody Cliente cliente) {
         Cliente creado = clienteService.crear(cliente);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> actualizar(@PathVariable Long id, @RequestBody Cliente datosNuevos) {
+    public ResponseEntity<Cliente> actualizar(@PathVariable Long id, @Valid @RequestBody Cliente datosNuevos) {
         Optional<Cliente> actualizado = clienteService.actualizar(id, datosNuevos);
         if (actualizado.isPresent()) {
             return ResponseEntity.ok(actualizado.get());

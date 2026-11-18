@@ -4,6 +4,7 @@ import com.juana.turnos_api.dto.TurnoRequest;
 import com.juana.turnos_api.dto.TurnoResponse;
 import com.juana.turnos_api.model.EstadoTurno;
 import com.juana.turnos_api.service.TurnoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -47,7 +48,7 @@ public class TurnoController {
     }
 
     @PostMapping
-    public ResponseEntity<TurnoResponse> crear(@RequestBody TurnoRequest request) {
+    public ResponseEntity<TurnoResponse> crear(@Valid @RequestBody TurnoRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(turnoService.crear(request));
     }
 

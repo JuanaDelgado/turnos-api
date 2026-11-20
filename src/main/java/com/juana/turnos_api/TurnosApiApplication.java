@@ -8,9 +8,11 @@ import java.util.TimeZone;
 @SpringBootApplication
 public class TurnosApiApplication {
 
-	public static void main(String[] args) {
+	static {
 		TimeZone.setDefault(TimeZone.getTimeZone("America/Argentina/Buenos_Aires"));
-		SpringApplication.run(TurnosApiApplication.class, args);
-	}
+		}
+		public static void main(String[] args) {
+			SpringApplication.run(TurnosApiApplication.class, args);
+		}
 
 }

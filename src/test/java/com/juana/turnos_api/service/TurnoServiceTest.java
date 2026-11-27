@@ -143,4 +143,15 @@ public class TurnoServiceTest {
 
         assertThrows(ReglaNegocioException.class, () -> turnoService.confirmar(5L));
     }
+
+    @Test
+    void deberiaRechazarTurnoSiElClienteYaTieneTresPendientes() {
+        TurnoRequest request = new TurnoRequest(1L, 2L, fechaValida);
+        when(clienteService.buscarPorId(1L)).thenReturn(Optional.of(cliente));
+        when(profesionalService.buscarPorId(2L)).thenReturn(Optional.of(profesional));
+        when(turnoRepository.countByClienteIdAndEstado(1L, EstadoTurno.PENDIENTE)).thenReturn(3L);
+
+        assertThrows(ReglaNegocioException.class, () -> turnoService.crear(request));
+        verify(turnoRepository, never()).save(any(Turno.class));
+    }
 }

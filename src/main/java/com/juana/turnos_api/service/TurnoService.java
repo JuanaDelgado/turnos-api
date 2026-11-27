@@ -26,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TurnoService {
 
+    private static final int MAXIMO_TURNOS_PENDIENTES = 3;
     private static final int HORA_APERTURA = 9;
     private static final int HORA_CIERRE = 18;
 
@@ -70,6 +71,11 @@ public class TurnoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe el profeisonal con id " + request.profesionalId()));
 
         validarFecha(request.fechaHora());
+        long pendientes = turnoRepository.countByClienteIdAndEstado(cliente.getId(), EstadoTurno.PENDIENTE);
+        if (pendientes >= MAXIMO_TURNOS_PENDIENTES) {
+            log.warn("Turno rechazado: {} ya tiene {} turnos pendientes", cliente.getNombre(), pendientes);
+            throw new ReglaNegocioException("El cliente ya tiene " + MAXIMO_TURNOS_PENDIENTES + " turnos pendientes");
+        }
 
         boolean ocupado = turnoRepository.existsByProfesionalIdAndFechaHoraAndEstadoNot(
                 profesional.getId(), request.fechaHora(), EstadoTurno.CANCELADO);
@@ -127,4 +133,11 @@ public class TurnoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe el turno con id " + id));
     }
 
+    private void validarLimiteDePendientes(Cliente cliente) {
+        long pendientes = turnoRepository.countByClienteIdAndEstado(cliente.getId(), EstadoTurno.PENDIENTE);
+        if (pendientes >= MAXIMO_TURNOS_PENDIENTES) {
+            log.warn("Turno rechazado: {} ya tiene {} turnos pendientes", cliente.getNombre(), pendientes);
+            throw new ReglaNegocioException("El cliente ya tiene " + MAXIMO_TURNOS_PENDIENTES + " turnos pendientes");
+        }
+    }
 }

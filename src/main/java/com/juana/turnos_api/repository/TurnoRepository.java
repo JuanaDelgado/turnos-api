@@ -26,4 +26,5 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> buscarAgendaDeProfesional(@Param("profesionalId") Long profesionalId,
                                           @Param("desde") LocalDateTime desde,
                                           @Param("hasta") LocalDateTime hasta);
+    long countByClienteIdAndEstado(Long clienteId, EstadoTurno estado);
 }
